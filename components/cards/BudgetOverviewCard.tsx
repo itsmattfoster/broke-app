@@ -94,6 +94,5 @@ const styles = StyleSheet.create({
   trendLine: {
     height: 2,
     backgroundColor: '#E0E0E0',
-  },});
-
   },
+});
