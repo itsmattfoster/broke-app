@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Modal, Platform } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Platform } from 'react-native';
 
 // Type declaration for beforeinstallprompt event
 declare global {
@@ -22,36 +22,28 @@ export const PWAInstallPrompt: React.FC = () => {
   useEffect(() => {
     if (Platform.OS !== 'web') return;
 
-    // Check if app is already installed
     if (typeof window !== 'undefined') {
+      // Check if app is already installed (standalone mode)
       const standalone = window.matchMedia('(display-mode: standalone)').matches;
       setIsStandalone(standalone);
       
-      if (standalone) return; // Don't show if already installed
+      if (standalone) {
+        setShowPrompt(false);
+        return; // Don't show if already installed
+      }
 
       // Detect iOS
       const iOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
       setIsIOS(iOS);
 
-      // For iOS, show prompt after a delay
-      if (iOS) {
-        // Check if user has dismissed before (localStorage)
-        const dismissed = localStorage.getItem('pwa-install-dismissed');
-        if (!dismissed) {
-          // Show after 3 seconds
-          const timer = setTimeout(() => {
-            setShowPrompt(true);
-          }, 3000);
-          return () => clearTimeout(timer);
-        }
-      }
+      // Show immediately when in browser mode
+      setShowPrompt(true);
     }
 
     // Listen for the beforeinstallprompt event (Android Chrome)
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault();
       setDeferredPrompt(e as BeforeInstallPromptEvent);
-      setShowPrompt(true);
     };
 
     if (typeof window !== 'undefined') {
@@ -67,9 +59,7 @@ export const PWAInstallPrompt: React.FC = () => {
 
   const handleInstall = async () => {
     if (isIOS) {
-      // iOS: Just close, user needs to use browser menu
-      setShowPrompt(false);
-      localStorage.setItem('pwa-install-dismissed', 'true');
+      // iOS: Instructions are already shown, no action needed
       return;
     }
 
@@ -87,135 +77,117 @@ export const PWAInstallPrompt: React.FC = () => {
       setDeferredPrompt(null);
     } catch (error) {
       console.error('Error installing PWA:', error);
-      setShowPrompt(false);
     }
   };
 
-  const handleDismiss = () => {
-    setShowPrompt(false);
-    localStorage.setItem('pwa-install-dismissed', 'true');
-  };
-
+  // Don't show if not web, already installed, or prompt shouldn't show
   if (Platform.OS !== 'web' || !showPrompt || isStandalone) return null;
 
   return (
-    <Modal
-      visible={showPrompt}
-      transparent
-      animationType="fade"
-      onRequestClose={handleDismiss}
-    >
-      <View style={styles.overlay}>
-        <View style={styles.card}>
-          <Text style={styles.title}>Install Broke App</Text>
-          {isIOS ? (
-            <>
-              <Text style={styles.message}>
-                Add Broke to your home screen for a better experience!
-              </Text>
-              <View style={styles.iosInstructions}>
-                <Text style={styles.instructionStep}>1. Tap the Share button</Text>
-                <Text style={styles.instructionStep}>2. Scroll and tap "Add to Home Screen"</Text>
-                <Text style={styles.instructionStep}>3. Tap "Add" to confirm</Text>
-              </View>
-            </>
-          ) : (
-            <Text style={styles.message}>
-              Add Broke to your home screen for a better experience!
-            </Text>
-          )}
-          <View style={styles.buttonContainer}>
-            <TouchableOpacity
-              style={[styles.button, styles.cancelButton]}
-              onPress={handleDismiss}
-            >
-              <Text style={styles.cancelButtonText}>Not Now</Text>
-            </TouchableOpacity>
-            {!isIOS && (
-              <TouchableOpacity
-                style={[styles.button, styles.installButton]}
-                onPress={handleInstall}
-              >
-                <Text style={styles.installButtonText}>Install</Text>
-              </TouchableOpacity>
-            )}
-            {isIOS && (
-              <TouchableOpacity
-                style={[styles.button, styles.installButton]}
-                onPress={handleDismiss}
-              >
-                <Text style={styles.installButtonText}>Got It</Text>
-              </TouchableOpacity>
-            )}
+    <View style={styles.overlay}>
+      <View style={styles.container}>
+        <Text style={styles.title}>Install Broke</Text>
+        <Text style={styles.subtitle}>
+          Add Broke to your home screen for a better experience
+        </Text>
+        
+        {isIOS ? (
+          <View style={styles.instructionsContainer}>
+            <View style={styles.instructionItem}>
+              <Text style={styles.instructionNumber}>1</Text>
+              <Text style={styles.instructionText}>Tap the Share button</Text>
+            </View>
+            <View style={styles.instructionItem}>
+              <Text style={styles.instructionNumber}>2</Text>
+              <Text style={styles.instructionText}>Scroll and tap "Add to Home Screen"</Text>
+            </View>
+            <View style={styles.instructionItem}>
+              <Text style={styles.instructionNumber}>3</Text>
+              <Text style={styles.instructionText}>Tap "Add" to confirm</Text>
+            </View>
           </View>
-        </View>
+        ) : (
+          <TouchableOpacity
+            style={styles.installButton}
+            onPress={handleInstall}
+          >
+            <Text style={styles.installButtonText}>Add to Home Screen</Text>
+          </TouchableOpacity>
+        )}
       </View>
-    </Modal>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   overlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: '#000000',
     justifyContent: 'center',
     alignItems: 'center',
+    zIndex: 9999,
     padding: 20,
   },
-  card: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    padding: 24,
+  container: {
     width: '100%',
     maxWidth: 400,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#000000',
-    marginBottom: 12,
-  },
-  message: {
-    fontSize: 16,
-    color: '#666666',
-    marginBottom: 24,
-    lineHeight: 22,
-  },
-  iosInstructions: {
-    marginBottom: 24,
-    paddingLeft: 8,
-  },
-  instructionStep: {
-    fontSize: 15,
-    color: '#333333',
-    marginBottom: 8,
-    lineHeight: 22,
-  },
-  buttonContainer: {
-    flexDirection: 'row',
-    gap: 12,
-  },
-  button: {
-    flex: 1,
-    paddingVertical: 14,
-    borderRadius: 12,
     alignItems: 'center',
   },
-  cancelButton: {
-    backgroundColor: '#F5F5F5',
+  title: {
+    fontSize: 32,
+    fontWeight: '700',
+    color: '#FFFFFF',
+    marginBottom: 12,
+    textAlign: 'center',
+  },
+  subtitle: {
+    fontSize: 16,
+    color: '#CCCCCC',
+    marginBottom: 40,
+    textAlign: 'center',
+    lineHeight: 24,
+  },
+  instructionsContainer: {
+    width: '100%',
+    gap: 24,
+  },
+  instructionItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 16,
+  },
+  instructionNumber: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: '#FFFFFF',
+    color: '#000000',
+    fontSize: 16,
+    fontWeight: '700',
+    textAlign: 'center',
+    lineHeight: 32,
+  },
+  instructionText: {
+    flex: 1,
+    fontSize: 16,
+    color: '#FFFFFF',
+    lineHeight: 24,
   },
   installButton: {
-    backgroundColor: '#000000',
-  },
-  cancelButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#666666',
+    width: '100%',
+    backgroundColor: '#FFFFFF',
+    paddingVertical: 16,
+    borderRadius: 12,
+    alignItems: 'center',
   },
   installButtonText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#FFFFFF',
+    color: '#000000',
   },
 });
 
