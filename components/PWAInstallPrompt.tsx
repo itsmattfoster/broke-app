@@ -16,16 +16,38 @@ interface BeforeInstallPromptEvent extends Event {
 export const PWAInstallPrompt: React.FC = () => {
   const [showPrompt, setShowPrompt] = useState(false);
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
+  const [isIOS, setIsIOS] = useState(false);
+  const [isStandalone, setIsStandalone] = useState(false);
 
   useEffect(() => {
     if (Platform.OS !== 'web') return;
 
     // Check if app is already installed
-    if (typeof window !== 'undefined' && window.matchMedia('(display-mode: standalone)').matches) {
-      return;
+    if (typeof window !== 'undefined') {
+      const standalone = window.matchMedia('(display-mode: standalone)').matches;
+      setIsStandalone(standalone);
+      
+      if (standalone) return; // Don't show if already installed
+
+      // Detect iOS
+      const iOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
+      setIsIOS(iOS);
+
+      // For iOS, show prompt after a delay
+      if (iOS) {
+        // Check if user has dismissed before (localStorage)
+        const dismissed = localStorage.getItem('pwa-install-dismissed');
+        if (!dismissed) {
+          // Show after 3 seconds
+          const timer = setTimeout(() => {
+            setShowPrompt(true);
+          }, 3000);
+          return () => clearTimeout(timer);
+        }
+      }
     }
 
-    // Listen for the beforeinstallprompt event
+    // Listen for the beforeinstallprompt event (Android Chrome)
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault();
       setDeferredPrompt(e as BeforeInstallPromptEvent);
@@ -44,6 +66,14 @@ export const PWAInstallPrompt: React.FC = () => {
   }, []);
 
   const handleInstall = async () => {
+    if (isIOS) {
+      // iOS: Just close, user needs to use browser menu
+      setShowPrompt(false);
+      localStorage.setItem('pwa-install-dismissed', 'true');
+      return;
+    }
+
+    // Android: Use the prompt
     if (!deferredPrompt) return;
 
     try {
@@ -61,34 +91,62 @@ export const PWAInstallPrompt: React.FC = () => {
     }
   };
 
-  if (Platform.OS !== 'web' || !showPrompt) return null;
+  const handleDismiss = () => {
+    setShowPrompt(false);
+    localStorage.setItem('pwa-install-dismissed', 'true');
+  };
+
+  if (Platform.OS !== 'web' || !showPrompt || isStandalone) return null;
 
   return (
     <Modal
       visible={showPrompt}
       transparent
       animationType="fade"
-      onRequestClose={() => setShowPrompt(false)}
+      onRequestClose={handleDismiss}
     >
       <View style={styles.overlay}>
         <View style={styles.card}>
           <Text style={styles.title}>Install Broke App</Text>
-          <Text style={styles.message}>
-            Add Broke to your home screen for a better experience!
-          </Text>
+          {isIOS ? (
+            <>
+              <Text style={styles.message}>
+                Add Broke to your home screen for a better experience!
+              </Text>
+              <View style={styles.iosInstructions}>
+                <Text style={styles.instructionStep}>1. Tap the Share button</Text>
+                <Text style={styles.instructionStep}>2. Scroll and tap "Add to Home Screen"</Text>
+                <Text style={styles.instructionStep}>3. Tap "Add" to confirm</Text>
+              </View>
+            </>
+          ) : (
+            <Text style={styles.message}>
+              Add Broke to your home screen for a better experience!
+            </Text>
+          )}
           <View style={styles.buttonContainer}>
             <TouchableOpacity
               style={[styles.button, styles.cancelButton]}
-              onPress={() => setShowPrompt(false)}
+              onPress={handleDismiss}
             >
               <Text style={styles.cancelButtonText}>Not Now</Text>
             </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.button, styles.installButton]}
-              onPress={handleInstall}
-            >
-              <Text style={styles.installButtonText}>Install</Text>
-            </TouchableOpacity>
+            {!isIOS && (
+              <TouchableOpacity
+                style={[styles.button, styles.installButton]}
+                onPress={handleInstall}
+              >
+                <Text style={styles.installButtonText}>Install</Text>
+              </TouchableOpacity>
+            )}
+            {isIOS && (
+              <TouchableOpacity
+                style={[styles.button, styles.installButton]}
+                onPress={handleDismiss}
+              >
+                <Text style={styles.installButtonText}>Got It</Text>
+              </TouchableOpacity>
+            )}
           </View>
         </View>
       </View>
@@ -121,6 +179,16 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#666666',
     marginBottom: 24,
+    lineHeight: 22,
+  },
+  iosInstructions: {
+    marginBottom: 24,
+    paddingLeft: 8,
+  },
+  instructionStep: {
+    fontSize: 15,
+    color: '#333333',
+    marginBottom: 8,
     lineHeight: 22,
   },
   buttonContainer: {
