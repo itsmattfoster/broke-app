@@ -38,7 +38,19 @@
       "orientation": "portrait",
       "startUrl": "/",
       "bundler": "metro",
-      "appleTouchIcon": "./assets/icon.png"
+      "appleTouchIcon": "./assets/icon.png",
+      "icons": [
+        {
+          "src": "./assets/icon.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        },
+        {
+          "src": "./assets/icon.png",
+          "sizes": "512x512",
+          "type": "image/png"
+        }
+      ]
     },
     "plugins": [
       "expo-router"
