@@ -95,3 +95,5 @@ const styles = StyleSheet.create({
     height: 2,
     backgroundColor: '#E0E0E0',
   },});
+
+  },

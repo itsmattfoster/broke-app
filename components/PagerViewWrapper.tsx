@@ -59,11 +59,12 @@ const PagerViewWrapper = forwardRef<PagerViewRef, PagerViewWrapperProps>(
       }
 
       return PanResponder.create({
-        onStartShouldSetPanResponder: () => true,
+        onStartShouldSetPanResponder: () => false, // Don't claim immediately - let children handle touches first
         onMoveShouldSetPanResponder: (_, gestureState) => {
           // Only respond to horizontal swipes
           return Math.abs(gestureState.dx) > Math.abs(gestureState.dy) && Math.abs(gestureState.dx) > 10;
         },
+        onPanResponderTerminationRequest: () => false, // Don't allow termination once we've claimed
         onPanResponderGrant: (_, gestureState) => {
           startX.current = gestureState.x0;
           currentX.current = gestureState.x0;
@@ -145,13 +146,18 @@ const PagerViewWrapper = forwardRef<PagerViewRef, PagerViewWrapperProps>(
 
       React.useEffect(() => {
         if (typeof window === 'undefined') return;
+        // Set initial width immediately
+        setScreenWidth(window.innerWidth);
         const handleResize = () => setScreenWidth(window.innerWidth);
         window.addEventListener('resize', handleResize);
         return () => window.removeEventListener('resize', handleResize);
       }, []);
 
+      // Safety check: ensure screenWidth is valid
+      const safeScreenWidth = screenWidth > 0 ? screenWidth : 375;
+      
       // Calculate transform for smooth swipe animation (in pixels)
-      const translateX = -(currentPage * screenWidth) - (offset * screenWidth);
+      const translateX = -(currentPage * safeScreenWidth) - (offset * safeScreenWidth);
 
       return (
         <View 
@@ -162,13 +168,13 @@ const PagerViewWrapper = forwardRef<PagerViewRef, PagerViewWrapperProps>(
             style={[
               styles.webPagerContent,
               {
-                width: totalPages * screenWidth,
+                width: totalPages * safeScreenWidth,
                 transform: [{ translateX }],
               }
             ]}
           >
             {childrenArray.map((child, index) => (
-              <View key={index} style={[styles.webPage, { width: screenWidth }]}>
+              <View key={index} style={[styles.webPage, { width: safeScreenWidth }]}>
                 {child}
               </View>
             ))}
