@@ -4,6 +4,8 @@
   "devCommand": "npm run web",
   "installCommand": "npm install --legacy-peer-deps",
   "framework": null,
+  "cleanUrls": true,
+  "trailingSlash": false,
   "rewrites": [
     {
       "source": "/(.*)",
