@@ -3,12 +3,16 @@ import { useEffect } from 'react';
 import { useAppStore } from '../store/useAppStore';
 import { useAuthStore } from '../store/useAuthStore';
 import { PWAInstallPrompt } from '../components/PWAInstallPrompt';
+import { registerServiceWorker } from '../lib/serviceWorker';
 
 export default function RootLayout() {
   const { initialize: initializeAuth, user } = useAuthStore();
   const { initializeStore } = useAppStore();
 
   useEffect(() => {
+    // Register service worker for PWA
+    registerServiceWorker();
+    
     // Initialize auth first
     initializeAuth();
   }, [initializeAuth]);

@@ -37,7 +37,8 @@
       "display": "standalone",
       "orientation": "portrait",
       "startUrl": "/",
-      "bundler": "metro"
+      "bundler": "metro",
+      "appleTouchIcon": "./assets/icon.png"
     },
     "plugins": [
       "expo-router"
