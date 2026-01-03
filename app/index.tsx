@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Modal, ActivityIndicator } from 'react-native';
-import PagerView from 'react-native-pager-view';
+import PagerViewWrapper, { PagerViewRef } from '../components/PagerViewWrapper';
 import { Ionicons } from '@expo/vector-icons';
 import { Header } from '../components/navigation/Header';
 import { useAppStore } from '../store/useAppStore';
@@ -19,7 +19,7 @@ import { useAuthStore } from '../store/useAuthStore';
 
 export default function HomeScreen() {
   const { user, loading, initialized } = useAuthStore();
-  const pagerRef = useRef<PagerView>(null);
+  const pagerRef = useRef<PagerViewRef>(null);
   const { selectedTab, setSelectedTab } = useAppStore();
   const [scrollOffset, setScrollOffset] = useState(2); // Initial offset for summary tab (index 2)
   const [isAssistantVisible, setIsAssistantVisible] = useState(false);
@@ -75,7 +75,7 @@ export default function HomeScreen() {
         onMessagePress={handleMessagePress}
       />
       
-      <PagerView
+      <PagerViewWrapper
         ref={pagerRef}
         style={styles.pager}
         initialPage={2} // Start on summary tab
@@ -109,7 +109,7 @@ export default function HomeScreen() {
         <View key="4" style={styles.page}>
           <SubscriptionsScreen />
         </View>
-      </PagerView>
+      </PagerViewWrapper>
 
       {/* AI Assistant Modal */}
       <Modal
