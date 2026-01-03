@@ -121,14 +121,11 @@ export const PWAInstallPrompt: React.FC = () => {
 
 const styles = StyleSheet.create({
   overlay: {
-    flex: 1,
     position: 'absolute',
     top: 0,
     left: 0,
     right: 0,
     bottom: 0,
-    width: '100%',
-    height: '100%',
     backgroundColor: '#000000',
     justifyContent: 'center',
     alignItems: 'center',
@@ -193,4 +190,3 @@ const styles = StyleSheet.create({
     color: '#000000',
   },
 });
-
