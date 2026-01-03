@@ -37,7 +37,7 @@
       "display": "standalone",
       "orientation": "portrait",
       "startUrl": "/",
-      "bundler": "webpack"
+      "bundler": "metro"
     },
     "plugins": [
       "expo-router"
