@@ -1,6 +1,5 @@
 import React, { useRef, forwardRef, useImperativeHandle } from 'react';
 import { View, StyleSheet, Platform } from 'react-native';
-import PagerView from 'react-native-pager-view';
 
 interface PagerViewWrapperProps {
   children: React.ReactNode;
@@ -13,6 +12,12 @@ interface PagerViewWrapperProps {
 
 export interface PagerViewRef {
   setPage: (page: number) => void;
+}
+
+// Conditionally require PagerView only on native platforms
+let PagerView: any = null;
+if (Platform.OS !== 'web') {
+  PagerView = require('react-native-pager-view').default;
 }
 
 const PagerViewWrapper = forwardRef<PagerViewRef, PagerViewWrapperProps>(
@@ -51,6 +56,10 @@ const PagerViewWrapper = forwardRef<PagerViewRef, PagerViewWrapperProps>(
     }
 
     // Native: use actual PagerView
+    if (!PagerView) {
+      return null; // Fallback if PagerView couldn't be loaded
+    }
+
     return (
       <PagerView
         ref={nativePagerRef}
