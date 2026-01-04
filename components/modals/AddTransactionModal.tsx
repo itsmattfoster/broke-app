@@ -46,6 +46,10 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
   const [paymentMethod, setPaymentMethod] = useState<'cash' | 'flex' | 'swipe'>(
     isSchoolTransaction ? 'flex' : 'cash'
   );
+  
+  // Swipe-down-to-dismiss tracking for web
+  const [swipeStartY, setSwipeStartY] = useState<number | null>(null);
+  const [swipeCurrentY, setSwipeCurrentY] = useState<number | null>(null);
 
   // Populate form when editing
   useEffect(() => {
@@ -83,16 +87,16 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
       });
     } else {
       // Create new transaction
-      await addTransaction({
-        merchant: merchant.trim(),
-        amount: paymentMethod === 'swipe' ? 0 : parseFloat(amount),
-        category: selectedCategory,
-        type: 'spend',
-        date: new Date(),
-        needsReview: true,
-        icon,
-        paymentMethod: paymentMethod === 'swipe' ? 'swipe' : paymentMethod,
-      });
+    await addTransaction({
+      merchant: merchant.trim(),
+      amount: paymentMethod === 'swipe' ? 0 : parseFloat(amount),
+      category: selectedCategory,
+      type: 'spend',
+      date: new Date(),
+      needsReview: true,
+      icon,
+      paymentMethod: paymentMethod === 'swipe' ? 'swipe' : paymentMethod,
+    });
     }
 
     // Reset form
@@ -112,6 +116,44 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
     onClose();
   };
 
+  // Swipe-down-to-dismiss handlers for web
+  const handleSwipeStart = (e: any) => {
+    if (Platform.OS !== 'web') return;
+    const touch = e.nativeEvent?.touches?.[0];
+    const startY = touch ? touch.pageY : e.nativeEvent?.pageY;
+    if (startY) {
+      setSwipeStartY(startY);
+      setSwipeCurrentY(startY);
+    }
+  };
+
+  const handleSwipeMove = (e: any) => {
+    if (Platform.OS !== 'web' || swipeStartY === null) return;
+    const touch = e.nativeEvent?.touches?.[0];
+    const currentY = touch ? touch.pageY : e.nativeEvent?.pageY;
+    if (currentY && currentY > swipeStartY) { // Only allow downward swipes
+      setSwipeCurrentY(currentY);
+    }
+  };
+
+  const handleSwipeEnd = () => {
+    if (Platform.OS !== 'web' || swipeStartY === null || swipeCurrentY === null) {
+      setSwipeStartY(null);
+      setSwipeCurrentY(null);
+      return;
+    }
+    
+    const deltaY = swipeCurrentY - swipeStartY;
+    const minSwipeDistance = 100; // Minimum distance to dismiss
+    
+    if (deltaY > minSwipeDistance) {
+      handleClose();
+    }
+    
+    setSwipeStartY(null);
+    setSwipeCurrentY(null);
+  };
+
   return (
     <Modal
       visible={visible}
@@ -122,6 +164,9 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
       <KeyboardAvoidingView 
         style={styles.container}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        onTouchStart={Platform.OS === 'web' ? handleSwipeStart : undefined}
+        onTouchMove={Platform.OS === 'web' ? handleSwipeMove : undefined}
+        onTouchEnd={Platform.OS === 'web' ? handleSwipeEnd : undefined}
       >
         <View style={styles.header}>
           <Text style={styles.headerTitle}>{transaction ? 'Edit Transaction' : 'New Transaction'}</Text>
