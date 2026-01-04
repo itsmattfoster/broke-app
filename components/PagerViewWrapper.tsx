@@ -1,4 +1,4 @@
-import React, { useRef, forwardRef, useImperativeHandle, useState } from 'react';
+import React, { useRef, forwardRef, useImperativeHandle, useState, useEffect } from 'react';
 import { View, StyleSheet, Platform, Animated } from 'react-native';
 
 interface PagerViewWrapperProps {
@@ -35,7 +35,12 @@ const PagerViewWrapper = forwardRef<PagerViewRef, PagerViewWrapperProps>(
     const minSwipeDistance = 50; // Minimum distance in pixels to trigger a swipe
     const isWeb = Platform.OS === 'web';
 
+    useEffect(() => {
+      console.log('[PagerViewWrapper] Mounted, isWeb:', isWeb, 'currentPage:', currentPage, 'totalPages:', totalPages, 'children count:', childrenArray.length);
+    }, []);
+
     const goToPage = (page: number, animated = true) => {
+      console.log('[PagerViewWrapper] goToPage called:', page, 'animated:', animated);
       const clampedPage = Math.max(0, Math.min(page, totalPages - 1));
       setCurrentPage(clampedPage);
       
@@ -146,7 +151,9 @@ const PagerViewWrapper = forwardRef<PagerViewRef, PagerViewWrapperProps>(
 
     if (isWeb) {
       // Web fallback with swipe support
+      console.log('[PagerViewWrapper] Rendering web fallback, currentPage:', currentPage, 'totalPages:', totalPages);
       const currentChild = childrenArray[currentPage] || childrenArray[0];
+      console.log('[PagerViewWrapper] Current child:', currentChild ? 'exists' : 'missing', 'childrenArray length:', childrenArray.length);
 
       return (
         <View 

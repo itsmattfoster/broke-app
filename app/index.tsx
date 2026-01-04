@@ -18,7 +18,9 @@ import LoginScreen from './login';
 import { useAuthStore } from '../store/useAuthStore';
 
 export default function HomeScreen() {
+  console.log('[HomeScreen] Rendering');
   const { user, loading, initialized } = useAuthStore();
+  console.log('[HomeScreen] Auth state:', { user: !!user, loading, initialized });
   const pagerRef = useRef<PagerViewRef>(null);
   const { selectedTab, setSelectedTab } = useAppStore();
   const [scrollOffset, setScrollOffset] = useState(2); // Initial offset for summary tab (index 2)
@@ -53,6 +55,7 @@ export default function HomeScreen() {
 
   // Show loading screen while checking auth
   if (!initialized || loading) {
+    console.log('[HomeScreen] Showing loading screen');
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color="#000000" />
@@ -62,10 +65,12 @@ export default function HomeScreen() {
 
   // Show login screen if not authenticated
   if (!user) {
+    console.log('[HomeScreen] Showing login screen');
     return <LoginScreen />;
   }
 
   // Show main app if authenticated
+  console.log('[HomeScreen] Showing main app');
   return (
     <View style={styles.container}>
       <Header 
