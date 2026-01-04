@@ -180,7 +180,7 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: '#000000',
     paddingTop: 40,
-    paddingBottom: 0, // Remove bottom padding
+    paddingBottom: 12, // Add 12px bottom padding
     paddingHorizontal: 0,
     ...(Platform.OS === 'web' && {
       position: 'fixed' as any,

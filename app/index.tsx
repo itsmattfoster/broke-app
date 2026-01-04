@@ -168,7 +168,7 @@ const styles = StyleSheet.create({
   pager: {
     flex: 1,
     marginTop: 0, // Remove negative margin
-    paddingTop: 140, // Add padding equal to header height (40 paddingTop + ~100 for logo/tabs)
+    paddingTop: 152, // Add padding equal to header height (40 paddingTop + ~100 for logo/tabs) + 12px top padding
     backgroundColor: 'transparent', // Make background transparent so header shows through
   },
   page: {
