@@ -100,6 +100,8 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '700',
     color: '#000000',
+    textAlign: 'center',
+    width: '100%',
   },
   ringLabel: {
     fontSize: 12,

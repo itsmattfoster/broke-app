@@ -179,14 +179,14 @@ export const Header: React.FC<HeaderProps> = ({ onSettingsPress, onTabPress, scr
 const styles = StyleSheet.create({
   container: {
     backgroundColor: '#000000',
-    paddingTop: 60,
+    paddingTop: 40,
     paddingBottom: 60, // Increased from 20 to 60 to extend black header downward
     paddingHorizontal: 0, // Changed from 20 to 0
     // No zIndex - let natural render order handle it
   },
   settingsButton: {
     position: 'absolute',
-    top: 60,
+    top: 40,
     left: 0, // Changed from 20 to 0
     width: 40,
     height: 40,
@@ -196,7 +196,7 @@ const styles = StyleSheet.create({
   },
   messageButton: {
     position: 'absolute',
-    top: 60,
+    top: 40,
     right: 0,
     width: 40,
     height: 40,

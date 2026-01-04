@@ -18,6 +18,7 @@ export const PWAInstallPrompt: React.FC = () => {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [isIOS, setIsIOS] = useState(false);
   const [isStandalone, setIsStandalone] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
     if (Platform.OS !== 'web') return;
@@ -32,12 +33,16 @@ export const PWAInstallPrompt: React.FC = () => {
         return; // Don't show if already installed
       }
 
+      // Detect mobile device
+      const mobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      setIsMobile(mobile);
+
       // Detect iOS
       const iOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
       setIsIOS(iOS);
 
-      // Show immediately when in browser mode
-      setShowPrompt(true);
+      // Show immediately when in browser mode on mobile devices only
+      setShowPrompt(mobile);
     }
 
     // Listen for the beforeinstallprompt event (Android Chrome)
@@ -80,8 +85,8 @@ export const PWAInstallPrompt: React.FC = () => {
     }
   };
 
-  // Don't show if not web, already installed, or prompt shouldn't show
-  if (Platform.OS !== 'web' || !showPrompt || isStandalone) return null;
+  // Don't show if not web, already installed, not mobile, or prompt shouldn't show
+  if (Platform.OS !== 'web' || !showPrompt || isStandalone || !isMobile) return null;
 
   return (
     <View style={styles.overlay}>

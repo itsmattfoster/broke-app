@@ -153,15 +153,31 @@ const PagerViewWrapper = forwardRef<PagerViewRef, PagerViewWrapperProps>(
       if (isHorizontalSwipe && isHorizontal) {
         setTouchCurrent(currentX);
         
-        // Update translateX: base offset + swipe delta
-        translateX.setValue(baseOffset.current + deltaX);
+        // Clamp deltaX to 40% of page width when on edge tabs
+        let clampedDeltaX = deltaX;
+        if (containerWidth.current > 0) {
+          const maxSwipeDistance = containerWidth.current * 0.4; // 40% of page width
+          
+          // On first page (page 0), limit right swipe
+          if (currentPage === 0 && deltaX > 0) {
+            clampedDeltaX = Math.min(deltaX, maxSwipeDistance);
+          }
+          // On last page, limit left swipe
+          else if (currentPage === totalPages - 1 && deltaX < 0) {
+            clampedDeltaX = Math.max(deltaX, -maxSwipeDistance);
+          }
+        }
+        
+        // Update translateX: base offset + clamped swipe delta
+        translateX.setValue(baseOffset.current + clampedDeltaX);
         
         // Update scroll offset for header animation
         if (onPageScroll && containerWidth.current > 0) {
           const pageWidth = containerWidth.current;
-          const progress = Math.abs(deltaX) / pageWidth; // Normalize to 0-1
-          const direction = deltaX > 0 ? -1 : 1;
-          const offset = Math.min(progress, 1) * direction;
+          // Use clampedDeltaX for progress calculation
+          const progress = Math.abs(clampedDeltaX) / pageWidth; // Normalize to 0-1, max 0.4
+          const direction = clampedDeltaX > 0 ? -1 : 1;
+          const offset = Math.min(progress, 0.4) * direction; // Cap at 0.4 (40%)
           onPageScroll({ 
             nativeEvent: { 
               position: currentPage, 
