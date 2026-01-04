@@ -204,39 +204,66 @@ const PagerViewWrapper = forwardRef<PagerViewRef, PagerViewWrapperProps>(
 
     const handleTouchEnd = () => {
       if (!scrollEnabled || touchStart === null || touchCurrent === null || !isHorizontalSwipe) {
-        // Reset everything
         setTouchStart(null);
         setTouchStartY(null);
         setTouchCurrent(null);
         setIsHorizontalSwipe(false);
         if (isWeb) {
           translateX.setValue(baseOffset.current);
-        } else {
-          translateX.setValue(0);
         }
         return;
       }
 
-      const deltaX = touchCurrent - touchStart;
-      const absDeltaX = Math.abs(deltaX);
-
-      // Check if swipe distance is sufficient
-      if (absDeltaX > minSwipeDistance) {
-        if (deltaX > 0) {
-          // Swipe right - go to previous page
-          goToPage(currentPage - 1, true);
+      if (!isWeb || containerWidth.current === 0) {
+        // Native fallback
+        const deltaX = touchCurrent - touchStart;
+        if (Math.abs(deltaX) > minSwipeDistance) {
+          goToPage(deltaX > 0 ? currentPage - 1 : currentPage + 1, true);
         } else {
-          // Swipe left - go to next page
-          goToPage(currentPage + 1, true);
+          Animated.spring(translateX, {
+            toValue: baseOffset.current,
+            useNativeDriver: true,
+            tension: 50,
+            friction: 7,
+          }).start();
         }
-      } else {
-        // Not enough distance - snap back to current page
-        Animated.spring(translateX, {
-          toValue: baseOffset.current,
-          useNativeDriver: !isWeb,
-          tension: 50,
-          friction: 7,
-        }).start();
+        setTouchStart(null);
+        setTouchStartY(null);
+        setTouchCurrent(null);
+        setIsHorizontalSwipe(false);
+        return;
+      }
+
+      const pageWidth = containerWidth.current;
+      const deltaX = touchCurrent - touchStart;
+      const swipeThreshold = pageWidth * 0.3;
+      
+      // Determine target page
+      let targetPage = currentPage;
+      if (Math.abs(deltaX) > swipeThreshold) {
+        targetPage = deltaX > 0 ? currentPage - 1 : currentPage + 1;
+        targetPage = Math.max(0, Math.min(targetPage, totalPages - 1));
+      }
+      
+      // Update state
+      setCurrentPage(targetPage);
+      const targetOffset = -targetPage * pageWidth;
+      baseOffset.current = targetOffset;
+      
+      // Animate from current position (translateX already has the swipe delta) to target
+      Animated.spring(translateX, {
+        toValue: targetOffset,
+        useNativeDriver: !isWeb,
+        tension: 50,
+        friction: 7,
+      }).start();
+      
+      // Callbacks
+      if (onPageSelected) {
+        onPageSelected({ nativeEvent: { position: targetPage } });
+      }
+      if (onPageScroll) {
+        onPageScroll({ nativeEvent: { position: targetPage, offset: 0 } });
       }
 
       setTouchStart(null);
