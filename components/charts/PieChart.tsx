@@ -115,7 +115,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     top: '50%',
     left: '50%',
-    marginTop: -50, // Moved down by another 5 (was -55)
+    marginTop: -75, // Half of innerRadius * 2 (150 / 2 = 75)
     marginLeft: -75, // Half of innerRadius * 2 (150 / 2 = 75)
   },
   totalAmount: {
@@ -123,6 +123,8 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#000000',
     marginBottom: 4,
+    textAlign: 'center',
+    width: '100%',
   },
   totalLabel: {
     fontSize: 14,

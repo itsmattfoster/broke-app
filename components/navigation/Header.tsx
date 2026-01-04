@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Animated, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Animated, Dimensions, Platform } from 'react-native';
 import Svg, { Defs, LinearGradient, Stop, Rect } from 'react-native-svg';
 import { Ionicons } from '@expo/vector-icons';
 import { useAppStore } from '../../store/useAppStore';
@@ -182,7 +182,13 @@ const styles = StyleSheet.create({
     paddingTop: 40,
     paddingBottom: 60, // Increased from 20 to 60 to extend black header downward
     paddingHorizontal: 0, // Changed from 20 to 0
-    // No zIndex - let natural render order handle it
+    ...(Platform.OS === 'web' && {
+      position: 'fixed' as any,
+      top: 0,
+      left: 0,
+      right: 0,
+      zIndex: 100,
+    }),
   },
   settingsButton: {
     position: 'absolute',
