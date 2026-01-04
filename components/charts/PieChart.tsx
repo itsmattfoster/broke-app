@@ -25,20 +25,16 @@ export const PieChart: React.FC<PieChartProps> = ({
   const center = size / 2;
   const outerRadius = size / 2 - 10;
   
-  // Sort all categories by spending (biggest to smallest), but don't filter
+  // Sort all categories by spending (biggest to smallest)
   const sortedCategories = [...categories].sort((a, b) => b.spentToDate - a.spentToDate);
   
-  // Calculate total from categories with spending to ensure chart completes full circle
-  const displayedTotal = sortedCategories
-    .filter(cat => cat.spentToDate > 0)
-    .reduce((sum, cat) => sum + cat.spentToDate, 0);
-  
   // Calculate angles for each segment, but only for categories with spending
+  // Use totalSpending directly (from categories card) for percentage calculations
   let currentAngle = -90; // Start at top (-90 degrees)
   const segments = sortedCategories
     .filter(cat => cat.spentToDate > 0) // Only create segments for categories with spending
     .map(cat => {
-      const percentage = displayedTotal > 0 ? (cat.spentToDate / displayedTotal) * 100 : 0;
+      const percentage = totalSpending > 0 ? (cat.spentToDate / totalSpending) * 100 : 0;
       const angle = (percentage / 100) * 360;
       const startAngle = currentAngle;
       const endAngle = currentAngle + angle;
@@ -72,8 +68,8 @@ export const PieChart: React.FC<PieChartProps> = ({
     return `M ${x1} ${y1} A ${outerRadius} ${outerRadius} 0 ${largeArcFlag} 1 ${x2} ${y2} L ${x3} ${y3} A ${innerRadius} ${innerRadius} 0 ${largeArcFlag} 0 ${x4} ${y4} Z`;
   };
 
-  // Show empty circle when no spending
-  if (segments.length === 0) {
+  // Show empty gray wheel when no spending
+  if (totalSpending === 0 || segments.length === 0) {
     // Create empty donut circle path
     const emptyDonutPath = createDonutPath(-90, 270); // Full circle (360 degrees, starting at top)
     
