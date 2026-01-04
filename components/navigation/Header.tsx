@@ -251,6 +251,9 @@ const styles = StyleSheet.create({
     shadowRadius: 3,
     // Add elevation for Android
     elevation: 2,
+    ...(Platform.OS === 'web' && {
+      zIndex: 10, // Tabs on top
+    }),
   },
   leftFadeOverlay: {
     position: 'absolute',
