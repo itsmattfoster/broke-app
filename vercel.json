@@ -8,7 +8,7 @@
   "trailingSlash": false,
   "rewrites": [
     {
-      "source": "/(.*)",
+      "source": "/((?!_expo|favicon.ico|sw.js|manifest.json|metadata.json|assets).*)",
       "destination": "/index.html"
     }
   ],
