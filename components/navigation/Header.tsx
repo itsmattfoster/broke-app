@@ -177,6 +177,7 @@ export const Header: React.FC<HeaderProps> = ({ onSettingsPress, onTabPress, scr
           })}
         </Animated.View>
       </View>
+      </View>
     </View>
   );
 };
