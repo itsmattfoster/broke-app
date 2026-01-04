@@ -179,7 +179,7 @@ export const Header: React.FC<HeaderProps> = ({ onSettingsPress, onTabPress, scr
 const styles = StyleSheet.create({
   container: {
     backgroundColor: '#000000',
-    paddingTop: 40,
+    paddingTop: 20, // Reduced from 40 by 20
     paddingBottom: 12, // Add 12px bottom padding
     paddingHorizontal: 0,
     ...(Platform.OS === 'web' && {
@@ -192,8 +192,7 @@ const styles = StyleSheet.create({
   },
   settingsButton: {
     position: 'absolute',
-    top: '50%', // Center vertically with logo
-    marginTop: -12, // Half of icon height (24/2 = 12) to center it
+    top: 20, // Fixed pixel value - aligns with logo center (20 paddingTop + logo is ~34px, center is ~37px)
     left: 20,
     width: 40,
     height: 40,
@@ -203,8 +202,7 @@ const styles = StyleSheet.create({
   },
   messageButton: {
     position: 'absolute',
-    top: '50%', // Center vertically with logo
-    marginTop: -12, // Half of icon height (24/2 = 12) to center it
+    top: 20, // Same fixed value
     right: 20,
     width: 40,
     height: 40,

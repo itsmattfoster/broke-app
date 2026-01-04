@@ -70,8 +70,32 @@ export const PieChart: React.FC<PieChartProps> = ({
     return `M ${x1} ${y1} A ${outerRadius} ${outerRadius} 0 ${largeArcFlag} 1 ${x2} ${y2} L ${x3} ${y3} A ${innerRadius} ${innerRadius} 0 ${largeArcFlag} 0 ${x4} ${y4} Z`;
   };
 
+  // Show empty circle when no spending
   if (segments.length === 0) {
-    return null;
+    // Create empty donut circle path
+    const emptyDonutPath = createDonutPath(-90, 270); // Full circle (360 degrees, starting at top)
+    
+    return (
+      <View style={styles.container}>
+        <Svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+          <G>
+            {/* Empty circle - gray donut */}
+            <Path
+              d={emptyDonutPath}
+              fill="#F0F0F0"
+              stroke="#E0E0E0"
+              strokeWidth={2}
+            />
+          </G>
+        </Svg>
+        <View style={[styles.centerLabel, { width: innerRadius * 2, height: innerRadius * 2 }]}>
+          <Text style={styles.totalAmount} numberOfLines={1} adjustsFontSizeToFit>
+            {formatCurrency(totalSpending)}
+          </Text>
+          <Text style={styles.totalLabel}>spent</Text>
+        </View>
+      </View>
+    );
   }
 
   return (

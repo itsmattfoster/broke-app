@@ -304,7 +304,7 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: 20,
-    paddingTop: 20, // Reduced so card sits in overlap area
+    paddingTop: 40, // Increased for more breathing room between header and card
   },
   title: {
     fontSize: 14,
