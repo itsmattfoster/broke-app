@@ -74,38 +74,33 @@ export const Header: React.FC<HeaderProps> = ({ onSettingsPress, onTabPress, scr
 
   return (
     <View style={styles.container} pointerEvents="box-none">
-      {/* Bottom padding - zIndex: 3 */}
-      <View style={styles.bottomPadding} pointerEvents="none" />
-      
-      {/* Top section - zIndex: 5 for buttons/title, tabs have zIndex: 10 */}
-      <View style={styles.topSection} pointerEvents="box-none">
-        {/* Gear icon */}
-        <TouchableOpacity 
-          style={styles.settingsButton} 
-          onPress={() => {
-            lightHaptic();
-            onSettingsPress();
-          }}
-        >
-          <Ionicons name="settings-outline" size={24} color="#FFFFFF" />
-        </TouchableOpacity>
+      {/* Gear icon */}
+      <TouchableOpacity 
+        style={styles.settingsButton} 
+        onPress={() => {
+          lightHaptic();
+          onSettingsPress();
+        }}
+      >
+        <Ionicons name="settings-outline" size={24} color="#FFFFFF" />
+      </TouchableOpacity>
 
-        {/* Message icon */}
-        <TouchableOpacity 
-          style={styles.messageButton} 
-          onPress={() => {
-            lightHaptic();
-            onMessagePress();
-          }}
-        >
-          <Ionicons name="chatbubble-outline" size={24} color="#FFFFFF" />
-        </TouchableOpacity>
+      {/* Message icon */}
+      <TouchableOpacity 
+        style={styles.messageButton} 
+        onPress={() => {
+          lightHaptic();
+          onMessagePress();
+        }}
+      >
+        <Ionicons name="chatbubble-outline" size={24} color="#FFFFFF" />
+      </TouchableOpacity>
 
-        {/* Title */}
-        <Text style={styles.title} pointerEvents="none">broke</Text>
+      {/* Title */}
+      <Text style={styles.title} pointerEvents="none">broke</Text>
 
-        {/* Tab pills with gradient fade overlays */}
-        <View style={styles.tabWrapper} pointerEvents="box-none">
+      {/* Tab pills with gradient fade overlays */}
+      <View style={styles.tabWrapper} pointerEvents="box-none">
         {/* Left fade gradient overlay */}
         <View style={styles.leftFadeOverlay} pointerEvents="none">
           <Svg height="100%" width={FADE_WIDTH} style={StyleSheet.absoluteFill}>
@@ -177,47 +172,29 @@ export const Header: React.FC<HeaderProps> = ({ onSettingsPress, onTabPress, scr
           })}
         </Animated.View>
       </View>
-      </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#000000', // Restore black background for entire header
+    backgroundColor: '#000000',
     paddingTop: 40,
-    paddingBottom: 60, // Increased from 20 to 60 to extend black header downward
-    paddingHorizontal: 0, // Changed from 20 to 0
+    paddingBottom: 0, // Remove bottom padding
+    paddingHorizontal: 0,
     ...(Platform.OS === 'web' && {
       position: 'fixed' as any,
       top: 0,
       left: 0,
       right: 0,
-      zIndex: 1, // Base container
-    }),
-  },
-  bottomPadding: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    height: 60,
-    backgroundColor: '#000000',
-    ...(Platform.OS === 'web' && {
-      zIndex: 3, // Lower than cards (4) so cards can overlap
-    }),
-  },
-  topSection: {
-    backgroundColor: '#000000', // Add black background to top section
-    ...(Platform.OS === 'web' && {
-      zIndex: 5,
-      position: 'relative' as any,
+      zIndex: 100,
     }),
   },
   settingsButton: {
     position: 'absolute',
-    top: 40,
-    left: 0, // Changed from 20 to 0
+    top: '50%', // Center vertically with logo
+    marginTop: -12, // Half of icon height (24/2 = 12) to center it
+    left: 20,
     width: 40,
     height: 40,
     alignItems: 'center',
@@ -226,8 +203,9 @@ const styles = StyleSheet.create({
   },
   messageButton: {
     position: 'absolute',
-    top: 40,
-    right: 0,
+    top: '50%', // Center vertically with logo
+    marginTop: -12, // Half of icon height (24/2 = 12) to center it
+    right: 20,
     width: 40,
     height: 40,
     alignItems: 'center',
@@ -252,9 +230,6 @@ const styles = StyleSheet.create({
     shadowRadius: 3,
     // Add elevation for Android
     elevation: 2,
-    ...(Platform.OS === 'web' && {
-      zIndex: 10, // Tabs on top
-    }),
   },
   leftFadeOverlay: {
     position: 'absolute',
