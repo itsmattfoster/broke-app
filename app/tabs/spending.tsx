@@ -133,9 +133,8 @@ export default function SpendingScreen() {
   // Calculate maximum spending for proportional bars
   const maxSpending = Math.max(...sortedBudgets.map(b => categorySpending[b.category] || 0), 0);
   
-  // Get preview categories (top 3)
-  const previewCategories = sortedBudgets.slice(0, 3);
-  const displayCategories = categoriesExpanded ? sortedBudgets : previewCategories;
+  // Always show all categories (remove preview/expand functionality)
+  const displayCategories = sortedBudgets;
 
   // Get category data for modal
   const selectedCategoryBudget = selectedCategory ? budgets.find(b => b.category === selectedCategory) : null;

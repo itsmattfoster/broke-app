@@ -25,30 +25,32 @@ export const PieChart: React.FC<PieChartProps> = ({
   const center = size / 2;
   const outerRadius = size / 2 - 10;
   
-  // Filter and sort categories by spending (biggest to smallest)
-  const sortedCategories = categories
-    .filter(cat => cat.spentToDate > 0) // Only show categories with spending
-    .sort((a, b) => b.spentToDate - a.spentToDate); // Sort biggest to smallest
+  // Sort all categories by spending (biggest to smallest), but don't filter
+  const sortedCategories = [...categories].sort((a, b) => b.spentToDate - a.spentToDate);
   
-  // Calculate total from displayed categories to ensure chart completes full circle
-  const displayedTotal = sortedCategories.reduce((sum, cat) => sum + cat.spentToDate, 0);
+  // Calculate total from categories with spending to ensure chart completes full circle
+  const displayedTotal = sortedCategories
+    .filter(cat => cat.spentToDate > 0)
+    .reduce((sum, cat) => sum + cat.spentToDate, 0);
   
-  // Calculate angles for each segment, arranged clockwise from top
+  // Calculate angles for each segment, but only for categories with spending
   let currentAngle = -90; // Start at top (-90 degrees)
-  const segments = sortedCategories.map(cat => {
-    const percentage = (cat.spentToDate / displayedTotal) * 100; // Use displayedTotal instead of totalSpending
-    const angle = (percentage / 100) * 360;
-    const startAngle = currentAngle;
-    const endAngle = currentAngle + angle;
-    currentAngle = endAngle;
-    
-    return {
-      ...cat,
-      percentage,
-      startAngle,
-      endAngle,
-    };
-  });
+  const segments = sortedCategories
+    .filter(cat => cat.spentToDate > 0) // Only create segments for categories with spending
+    .map(cat => {
+      const percentage = displayedTotal > 0 ? (cat.spentToDate / displayedTotal) * 100 : 0;
+      const angle = (percentage / 100) * 360;
+      const startAngle = currentAngle;
+      const endAngle = currentAngle + angle;
+      currentAngle = endAngle;
+      
+      return {
+        ...cat,
+        percentage,
+        startAngle,
+        endAngle,
+      };
+    });
 
   // Convert angle to radians and calculate arc path for donut chart
   const createDonutPath = (startAngle: number, endAngle: number) => {
