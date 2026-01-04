@@ -21,7 +21,7 @@ if (Platform.OS !== 'web') {
 }
 
 const PagerViewWrapper = forwardRef<PagerViewRef, PagerViewWrapperProps>(
-  ({ children, style, initialPage = 0, onPageSelected, onPageScroll, scrollEnabled = true }, ref) => {
+  function PagerViewWrapperComponent({ children, style, initialPage = 0, onPageSelected, onPageScroll, scrollEnabled = true }, ref) {
     const nativePagerRef = useRef<any>(null);
     const [currentPage, setCurrentPage] = useState(initialPage);
     
@@ -54,10 +54,6 @@ const PagerViewWrapper = forwardRef<PagerViewRef, PagerViewWrapperProps>(
         translateX.setValue(baseOffset.current);
       }
     }, [currentPage, isWeb]);
-
-    // Track the base offset for the current page (in pixels)
-    const baseOffset = useRef(0);
-    const containerWidth = useRef(0);
 
     const goToPage = (page: number, animated = true) => {
       console.log('[PagerViewWrapper] goToPage called:', page, 'animated:', animated);
