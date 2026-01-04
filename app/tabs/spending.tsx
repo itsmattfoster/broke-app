@@ -98,7 +98,6 @@ const groupTransactionsByDate = (transactions: Transaction[]) => {
 
 export default function SpendingScreen() {
   const { budgets, transactions, timePeriod } = useAppStore();
-  const [categoriesExpanded, setCategoriesExpanded] = useState(false);
   const [transactionsExpanded, setTransactionsExpanded] = useState(false);
   const [isAddModalVisible, setIsAddModalVisible] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -133,7 +132,7 @@ export default function SpendingScreen() {
   // Calculate maximum spending for proportional bars
   const maxSpending = Math.max(...sortedBudgets.map(b => categorySpending[b.category] || 0), 0);
   
-  // Always show all categories (remove preview/expand functionality)
+  // Always show all categories - no conditional rendering
   const displayCategories = sortedBudgets;
 
   // Get category data for modal
@@ -160,21 +159,9 @@ export default function SpendingScreen() {
       </Card>
 
       <Card>
-        <TouchableOpacity 
-          style={styles.cardHeader}
-          onPress={() => {
-            lightHaptic();
-            setCategoriesExpanded(!categoriesExpanded);
-          }}
-          activeOpacity={0.7}
-        >
+        <View style={styles.cardHeader}>
           <Text style={styles.sectionTitle}>Categories</Text>
-          <Ionicons 
-            name={categoriesExpanded ? "chevron-back" : "chevron-down"} 
-            size={20} 
-            color="#666666" 
-          />
-        </TouchableOpacity>
+        </View>
         <View style={styles.itemsContainer}>
           {displayCategories.map(budget => (
             <BudgetBar
@@ -192,19 +179,6 @@ export default function SpendingScreen() {
               }}
             />
           ))}
-          {!categoriesExpanded && displayCategories.length === 3 && (
-            <View style={styles.fadeOverlay} pointerEvents="none">
-              <Svg height="100%" width="100%" style={StyleSheet.absoluteFill}>
-                <Defs>
-                  <LinearGradient id="bottomFade" x1="0%" y1="0%" x2="0%" y2="100%">
-                    <Stop offset="0%" stopColor="#FFFFFF" stopOpacity="0" />
-                    <Stop offset="100%" stopColor="#FFFFFF" stopOpacity="1" />
-                  </LinearGradient>
-                </Defs>
-                <Rect width="100%" height="100%" fill="url(#bottomFade)" />
-              </Svg>
-            </View>
-          )}
         </View>
       </Card>
 

@@ -105,6 +105,17 @@ const defaultSchoolPlan: SchoolPlan = {
   avgDailyBurn: 0,
 };
 
+// Default category budgets - these should always exist in the database
+const DEFAULT_CATEGORY_BUDGETS: CategoryBudget[] = [
+  { category: 'Food', monthlyBudget: 0, spentToDate: 0, icon: '🥑', color: '#F38181' },
+  { category: 'Shopping', monthlyBudget: 0, spentToDate: 0, icon: '🛍️', color: '#95E1D3' },
+  { category: 'Transportation', monthlyBudget: 0, spentToDate: 0, icon: '🚗', color: '#FCBAD3' },
+  { category: 'Self Care', monthlyBudget: 0, spentToDate: 0, icon: '💪', color: '#FFD93D' },
+  { category: 'Entertainment', monthlyBudget: 0, spentToDate: 0, icon: '🎬', color: '#AA96DA' },
+  { category: 'Subscriptions', monthlyBudget: 0, spentToDate: 0, icon: '📺', color: '#4ECDC4' },
+  { category: 'Other', monthlyBudget: 0, spentToDate: 0, icon: '📦', color: '#6BCF7F' },
+];
+
 interface AppState {
   // Data
   transactions: Transaction[];
@@ -349,12 +360,29 @@ export const useAppStore = create<AppState>((set, get) => ({
         db.getCoachingMessages(user.id),
       ]);
       
+      // Ensure all default categories exist in database
+      const existingCategories = new Set(budgets.map(b => b.category));
+      const missingBudgets = DEFAULT_CATEGORY_BUDGETS.filter(
+        defaultBudget => !existingCategories.has(defaultBudget.category)
+      );
+      
+      // Create missing budgets in database
+      let finalBudgets = [...budgets];
+      if (missingBudgets.length > 0) {
+        const createdBudgets = await Promise.all(
+          missingBudgets.map(budget => 
+            db.upsertCategoryBudget(user.id, budget)
+          )
+        );
+        finalBudgets = [...budgets, ...createdBudgets];
+      }
+      
       const finalSchoolPlan = schoolPlan || defaultSchoolPlan;
       const finalSettings = settings || defaultSettings;
       
       set({
         transactions,
-        budgets,
+        budgets: finalBudgets, // Now guaranteed to have all default categories
         incomeSources,
         schoolPlan: finalSchoolPlan,
         settings: finalSettings,
