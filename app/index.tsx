@@ -166,6 +166,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#F5F5F5',
     ...(Platform.OS === 'web' && {
       paddingTop: 40, // Start content below logo/icons
+      zIndex: 2, // Content background lowest
     }),
   },
   pager: {

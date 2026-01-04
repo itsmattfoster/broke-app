@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, ViewStyle } from 'react-native';
+import { View, StyleSheet, ViewStyle, Platform } from 'react-native';
 
 interface CardProps {
   children: React.ReactNode;
@@ -21,6 +21,10 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 8,
     elevation: 3,
+    ...(Platform.OS === 'web' && {
+      zIndex: 4,
+      position: 'relative' as any,
+    }),
   },
 });
 

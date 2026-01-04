@@ -74,33 +74,38 @@ export const Header: React.FC<HeaderProps> = ({ onSettingsPress, onTabPress, scr
 
   return (
     <View style={styles.container} pointerEvents="box-none">
-      {/* Gear icon */}
-      <TouchableOpacity 
-        style={styles.settingsButton} 
-        onPress={() => {
-          lightHaptic();
-          onSettingsPress();
-        }}
-      >
-        <Ionicons name="settings-outline" size={24} color="#FFFFFF" />
-      </TouchableOpacity>
+      {/* Bottom padding - zIndex: 3 */}
+      <View style={styles.bottomPadding} pointerEvents="none" />
+      
+      {/* Top section - zIndex: 5 for buttons/title, tabs have zIndex: 10 */}
+      <View style={styles.topSection} pointerEvents="box-none">
+        {/* Gear icon */}
+        <TouchableOpacity 
+          style={styles.settingsButton} 
+          onPress={() => {
+            lightHaptic();
+            onSettingsPress();
+          }}
+        >
+          <Ionicons name="settings-outline" size={24} color="#FFFFFF" />
+        </TouchableOpacity>
 
-      {/* Message icon */}
-      <TouchableOpacity 
-        style={styles.messageButton} 
-        onPress={() => {
-          lightHaptic();
-          onMessagePress();
-        }}
-      >
-        <Ionicons name="chatbubble-outline" size={24} color="#FFFFFF" />
-      </TouchableOpacity>
+        {/* Message icon */}
+        <TouchableOpacity 
+          style={styles.messageButton} 
+          onPress={() => {
+            lightHaptic();
+            onMessagePress();
+          }}
+        >
+          <Ionicons name="chatbubble-outline" size={24} color="#FFFFFF" />
+        </TouchableOpacity>
 
-      {/* Title */}
-      <Text style={styles.title} pointerEvents="none">broke</Text>
+        {/* Title */}
+        <Text style={styles.title} pointerEvents="none">broke</Text>
 
-      {/* Tab pills with gradient fade overlays */}
-      <View style={styles.tabWrapper} pointerEvents="box-none">
+        {/* Tab pills with gradient fade overlays */}
+        <View style={styles.tabWrapper} pointerEvents="box-none">
         {/* Left fade gradient overlay */}
         <View style={styles.leftFadeOverlay} pointerEvents="none">
           <Svg height="100%" width={FADE_WIDTH} style={StyleSheet.absoluteFill}>
@@ -178,7 +183,7 @@ export const Header: React.FC<HeaderProps> = ({ onSettingsPress, onTabPress, scr
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#000000',
+    backgroundColor: 'transparent',
     paddingTop: 40,
     paddingBottom: 60, // Increased from 20 to 60 to extend black header downward
     paddingHorizontal: 0, // Changed from 20 to 0
@@ -187,7 +192,24 @@ const styles = StyleSheet.create({
       top: 0,
       left: 0,
       right: 0,
-      zIndex: 100,
+      zIndex: 1, // Base container
+    }),
+  },
+  bottomPadding: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: 60,
+    backgroundColor: '#000000',
+    ...(Platform.OS === 'web' && {
+      zIndex: 3,
+    }),
+  },
+  topSection: {
+    ...(Platform.OS === 'web' && {
+      zIndex: 5,
+      position: 'relative' as any,
     }),
   },
   settingsButton: {
