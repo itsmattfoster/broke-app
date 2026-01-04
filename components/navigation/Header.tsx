@@ -184,7 +184,7 @@ export const Header: React.FC<HeaderProps> = ({ onSettingsPress, onTabPress, scr
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: 'transparent',
+    backgroundColor: '#000000', // Restore black background for entire header
     paddingTop: 40,
     paddingBottom: 60, // Increased from 20 to 60 to extend black header downward
     paddingHorizontal: 0, // Changed from 20 to 0
@@ -204,10 +204,11 @@ const styles = StyleSheet.create({
     height: 60,
     backgroundColor: '#000000',
     ...(Platform.OS === 'web' && {
-      zIndex: 3,
+      zIndex: 3, // Lower than cards (4) so cards can overlap
     }),
   },
   topSection: {
+    backgroundColor: '#000000', // Add black background to top section
     ...(Platform.OS === 'web' && {
       zIndex: 5,
       position: 'relative' as any,
