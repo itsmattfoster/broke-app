@@ -33,6 +33,7 @@ const PagerViewWrapper = forwardRef<PagerViewRef, PagerViewWrapperProps>(
     const childrenArray = React.Children.toArray(children);
     const totalPages = childrenArray.length;
     const minSwipeDistance = 50; // Minimum distance in pixels to trigger a swipe
+    const isWeb = Platform.OS === 'web';
 
     const goToPage = (page: number, animated = true) => {
       const clampedPage = Math.max(0, Math.min(page, totalPages - 1));
@@ -41,7 +42,7 @@ const PagerViewWrapper = forwardRef<PagerViewRef, PagerViewWrapperProps>(
       if (animated) {
         Animated.spring(translateX, {
           toValue: 0,
-          useNativeDriver: true,
+          useNativeDriver: !isWeb, // Disable native driver on web
           tension: 50,
           friction: 7,
         }).start();
@@ -60,7 +61,7 @@ const PagerViewWrapper = forwardRef<PagerViewRef, PagerViewWrapperProps>(
 
     useImperativeHandle(ref, () => ({
       setPage: (page: number) => {
-        if (Platform.OS === 'web') {
+        if (isWeb) {
           goToPage(page, true);
         } else {
           nativePagerRef.current?.setPage(page);
@@ -68,19 +69,29 @@ const PagerViewWrapper = forwardRef<PagerViewRef, PagerViewWrapperProps>(
       },
     }));
 
-    // Web swipe handlers
+    // Web swipe handlers - handle both touch and mouse events
     const handleTouchStart = (e: any) => {
       if (!scrollEnabled) return;
-      const touch = e.nativeEvent.touches[0];
-      setTouchStart(touch.pageX);
-      setTouchCurrent(touch.pageX);
+      const touch = e.nativeEvent?.touches?.[0];
+      const mouse = e.nativeEvent;
+      
+      // Support both touch and mouse events
+      const startX = touch ? touch.pageX : (mouse?.pageX || 0);
+      if (startX === 0 && !touch) return; // Ignore if no valid input
+      
+      setTouchStart(startX);
+      setTouchCurrent(startX);
     };
 
     const handleTouchMove = (e: any) => {
       if (!scrollEnabled || touchStart === null) return;
-      const touch = e.nativeEvent.touches[0];
-      const deltaX = touch.pageX - touchStart;
-      setTouchCurrent(touch.pageX);
+      
+      const touch = e.nativeEvent?.touches?.[0];
+      const mouse = e.nativeEvent;
+      const currentX = touch ? touch.pageX : (mouse?.pageX || touchStart);
+      
+      const deltaX = currentX - touchStart;
+      setTouchCurrent(currentX);
       
       // Update translateX for visual feedback during swipe
       translateX.setValue(deltaX);
@@ -123,7 +134,7 @@ const PagerViewWrapper = forwardRef<PagerViewRef, PagerViewWrapperProps>(
         // Not enough distance - snap back to current page
         Animated.spring(translateX, {
           toValue: 0,
-          useNativeDriver: true,
+          useNativeDriver: !isWeb, // Disable native driver on web
           tension: 50,
           friction: 7,
         }).start();
@@ -133,7 +144,7 @@ const PagerViewWrapper = forwardRef<PagerViewRef, PagerViewWrapperProps>(
       setTouchCurrent(null);
     };
 
-    if (Platform.OS === 'web') {
+    if (isWeb) {
       // Web fallback with swipe support
       const currentChild = childrenArray[currentPage] || childrenArray[0];
 
@@ -143,6 +154,10 @@ const PagerViewWrapper = forwardRef<PagerViewRef, PagerViewWrapperProps>(
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
+          onMouseDown={handleTouchStart}
+          onMouseMove={handleTouchMove}
+          onMouseUp={handleTouchEnd}
+          onMouseLeave={handleTouchEnd}
         >
           <Animated.View
             style={[
