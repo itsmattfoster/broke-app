@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Modal, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Modal, ActivityIndicator, Platform } from 'react-native';
 import PagerViewWrapper, { PagerViewRef } from '../components/PagerViewWrapper';
 import { Ionicons } from '@expo/vector-icons';
 import { Header } from '../components/navigation/Header';
@@ -164,10 +164,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#F5F5F5',
+    ...(Platform.OS === 'web' && {
+      paddingTop: 40, // Start content below logo/icons
+    }),
   },
   pager: {
     flex: 1,
-    marginTop: -60, // Pull content up into header space
+    marginTop: -60, // Pull content up into header's black padding area
     backgroundColor: 'transparent', // Make background transparent so header shows through
   },
   page: {
